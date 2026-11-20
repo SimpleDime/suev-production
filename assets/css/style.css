@@ -116,8 +116,16 @@ button {
 }
 
 /* ---------- Client logo marquee ---------- */
-.marquee {
+.clients-title {
   margin-top: 64px;
+  font-family: Bitter, Georgia, serif;
+  font-size: 24px;
+  font-weight: 300;
+  color: #000;
+}
+
+.marquee {
+  margin-top: 32px;
   overflow: hidden;
 }
 
