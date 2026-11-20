@@ -27,10 +27,14 @@ python3 -m http.server 8000
 
 ## Contact form
 
-The original form posted to Hostinger's built-in backend, which a static copy can't use.
-To make it send messages, create a form endpoint with a service such as Formspree,
-Getform or Basin and paste its URL into `FORM_ENDPOINT` at the top of `assets/js/main.js`.
-Until then, submitting shows a note pointing visitors to LinkedIn/Instagram.
+Messages are emailed to **suev.production@gmail.com** via [FormSubmit](https://formsubmit.co)
+(free, no account needed). The address is set in `CONTACT_EMAIL` at the top of
+`assets/js/main.js`.
+
+**One-time activation:** the first time the form is submitted from the live site, FormSubmit
+sends an activation email to suev.production@gmail.com. Click **Activate Form** in it; after
+that, every submission arrives as an email with the sender's address as reply-to.
+If sending fails, visitors are shown the email address to write to directly.
 
 ## Deploy
 

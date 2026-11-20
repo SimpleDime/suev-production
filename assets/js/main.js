@@ -1,11 +1,14 @@
 /*
  * Contact form handler.
  *
- * The original site sent messages to Hostinger's built-in backend, which does
- * not exist on a static copy. Paste the URL of a form service that accepts
- * POSTed form data (e.g. Formspree, Getform, Basin) into FORM_ENDPOINT below.
+ * Messages are delivered to suev.production@gmail.com through FormSubmit
+ * (https://formsubmit.co), a free form-to-email service for static sites.
+ * The very first submission triggers a one-time activation email to that
+ * inbox; click "Activate Form" in it, and every message after that is
+ * delivered normally.
  */
-const FORM_ENDPOINT = "";
+const CONTACT_EMAIL = "suev.production@gmail.com";
+const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
 const SUCCESS_MESSAGE = "Thank you! We’ll contact you in 1-2 business days!";
 
@@ -16,28 +19,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorEl = form.querySelector(".form-error");
   const button = form.querySelector("button[type=submit]");
 
-  const showError = (text) => {
-    errorEl.textContent = text;
+  const showError = () => {
+    errorEl.innerHTML = "";
+    errorEl.append("Something went wrong. Please try again or email us at ");
+    const link = document.createElement("a");
+    link.href = `mailto:${CONTACT_EMAIL}`;
+    link.textContent = CONTACT_EMAIL;
+    link.style.textDecoration = "underline";
+    errorEl.append(link, ".");
     errorEl.hidden = false;
   };
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     errorEl.hidden = true;
-
-    if (!FORM_ENDPOINT) {
-      showError("The contact form isn't connected yet. Please reach us on LinkedIn or Instagram.");
-      return;
-    }
-
     button.disabled = true;
+
+    const data = new FormData(form);
+    data.append("_subject", `New message from ${data.get("name")} via the SUEV Production website`);
+    data.append("_template", "table");
+
     try {
       const response = await fetch(FORM_ENDPOINT, {
         method: "POST",
-        body: new FormData(form),
+        body: data,
         headers: { Accept: "application/json" },
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || String(result.success) !== "true") {
+        throw new Error(result.message || `HTTP ${response.status}`);
+      }
 
       const success = document.createElement("p");
       success.className = "form-success";
@@ -45,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
       form.replaceWith(success);
     } catch (err) {
       console.error(err);
-      showError("Something went wrong. Please try again.");
+      showError();
       button.disabled = false;
     }
   });
